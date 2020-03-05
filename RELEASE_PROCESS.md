@@ -14,6 +14,13 @@ Train is the connectivity library for InSpec, and is the most critical dependenc
 
 train-core is a stripped-down version of train, with no cloud provider plugins and no gems that require compilation during installation.
 
+You can promote train by running, in #inspec-notify,
+```
+/expeditor promote inspec/train:master 3.2.23
+```
+
+Note that the version you give to Expeditor is the plain version (not the tag, which includes a `v` prefix).
+
 #### train-aws, train-winrm, and train-habitat
 
 These are the transports (connectivity drivers) that have been fully plugin-ized.
@@ -22,7 +29,27 @@ train-aws in particular is critical because it carries the gem dependencies for 
 
 ## Merging InSpec PRs
 
+At the time of writing, a merge typically takes about 30-40 minutes of test time.
+
+Watch the Slack channel #inspec-notify for messages about the success or failure of various steps.
+
+Connect to the Chef VPN to fetch Expeditor logs in the event of a failure.
+
+### Check Expeditor Labels
+
+Most PRs shouldn't have any Expeditor control labels. The patchlevel (4.18.X) will be automatically incremented by the [expeditor configuration](https://github.com/inspec/inspec/blob/44fe144732e1e0abb2594957a880c5f1821e7774/.expeditor/config.yml#L117) and the [version bump script](https://github.com/inspec/inspec/blob/master/.expeditor/update_version.sh).
+
+ * Expeditor: Bump Minor Version - Use when a significant new feature is being released.
+ * Expeditor: Skip Changelog - Should only be used for dummy PRs.
+ * Expeditor: Skip Version Bump - Use for non-code-change PRs, such as website or CI changes.
+ * Expeditor: Skip Omnibus - Use for non-code-change PRs, such as website or CI changes.
+ * Expeditor: Skip Habitat - Use for non-code-change PRs, such as website or CI changes.
+
 ### Click Merge
+
+This should be straightforward, assuming the big merge button is green.
+
+If the merge button is red, take a moment and reminisce about various regrets in your life, then make your choice. Merging a build that fails tests is counterproductive; we have further tests downstream during the post-merge process.
 
 ### Watch Omnibus Build
 
