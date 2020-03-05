@@ -51,9 +51,40 @@ This should be straightforward, assuming the big merge button is green.
 
 If the merge button is red, take a moment and reminisce about various regrets in your life, then make your choice. Merging a build that fails tests is counterproductive; we have further tests downstream during the post-merge process.
 
+You'll see a message in #inspec-notify from Expeditor that it "performed actions for merged_inspec/inspec#1234" (for PR 1234, for example). Among the messages will be links to the Omnibus and Habitat builds.
+
 ### Watch Omnibus Build
 
+The Omnibus build creates operating-system-specific packages for each platform for which we release InSpec. Its [expeditor configuration](https://github.com/inspec/inspec/blob/44fe144732e1e0abb2594957a880c5f1821e7774/.expeditor/config.yml#L133) drives a [BuildKite configuration](https://github.com/inspec/inspec/blob/master/.expeditor/release.omnibus.yml) which lists exactly which platforms to build.
+
+The Omnibus build is generally reliable, if somewhat slow.
+
+When the omnibus build succeeds, omnitruck delivers the packages to various package repos in `unstable` channels for public consumption.
+
 ### Watch Habitat Build
+
+The Habitat build creates Habitat .hart packages for Linux and Windows. The [Expeditor configuration](https://github.com/inspec/inspec/blob/44fe144732e1e0abb2594957a880c5f1821e7774/.expeditor/config.yml#L138) drives a [BuildKite configuration](https://github.com/inspec/inspec/blob/master/.expeditor/build.habitat.yml).
+
+The habitat build is unreliable, usually due to network timeouts on the Windows machines. It often requires manual retries by clicking the retry button in BuildKite (obtain the link from the message posted by Expeditor in #inspec-notify). If you do not retry, later steps will fail.
+
+When the hab build succeeds, the packages will be placed on the Hab builder in the `unstable` channel for public consumption.
+
+### Docker Image Built and Released
+
+We also release a Docker image, which contains an Alpine system and InSpec installed from a gem, with the EXEC of the Docker image being `inspec`. It's a simple way to ship the dependencies of inspec.
+
+When the Docker build succeeds, it is released directly to the `stable` channel.
+
+### Gems Built and Placed on Artifactory
+
+The inspec, inspec-bin, inspec-core, and inspec-core-bin gems are all built and placed on the internal Chef Artifactory server.  During promotion later they will be published to rubygems.org.
+
+The difference between the gems is as follows:
+
+ * inspec is a library gem, with full heavyweight dependencies, not encumbered by commercial licensing
+ * inspec-bin contains an `inspec` executable and is encumbered by commercial licensing
+ * inspec-core is a library gem, with lightweight dependencies and no compilation required at install time, not encumbered by commercial licensing
+ * inspec-core-bin contains an `inspec` executable and is encumbered by commercial licensing
 
 ### Update Pending Release Notes
 
@@ -62,6 +93,6 @@ As each pull request is merged, update the [Pending Release Notes](https://githu
  * Do include bug fixes, features, etc - things that impact the user.
  * Your words will be edited by the Docs team, but try help them along by keeping it human oriented; this isn't the technical-oriented CHANGELOG.
  * Add the PR number as a reference for the Docs team. They will typically remove them, but they may need to get more context by looking up the originating PR.
- * It's preferable to add notes as things merged, lest they be forgotten; siftingg through a pile of merged PRs in a rush is a chore!
+ * It's preferable to add notes as things merged, lest they be forgotten; sifting through a pile of merged PRs in a rush is a chore!
 
 ## Promoting InSpec
