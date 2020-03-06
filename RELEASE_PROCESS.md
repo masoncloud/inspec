@@ -96,3 +96,56 @@ As each pull request is merged, update the [Pending Release Notes](https://githu
  * It's preferable to add notes as things merged, lest they be forgotten; sifting through a pile of merged PRs in a rush is a chore!
 
 ## Promoting InSpec
+
+Promotion should only be attempted if you have a set of green artifacts in #inspec-notify.
+
+### Notify Docs Team
+
+Let the Docs team know that a release is planned and that editing of the release notes is needed.  They will polish up the words and remove any unused sections.
+
+Wait until they let you know it is ready.
+
+### Run promote command
+
+The promote command is:
+
+```
+/expeditor promote inspec/inspec:master 4.18.100
+```
+
+Note that the version you give to Expeditor is the plain version (not the tag, which includes a `v` prefix).
+
+A lot happens when you promote:
+
+```
+inspec/inspec:master 4.18.100 was promoted to stable by cwolfe
+3:49
+inspec/inspec:master performed the following actions for inspec/inspec:master (4.18.100) (logs)
+• Promoted version 4.18.100 of inspec to stable.
+3:49
+inspec/inspec:master performed the following actions for inspec/inspec:master (4.18.100) (logs)
+• Promoted version 4.18.100 of inspec to stable.
+3:50
+:metal: :ice_cream: inspec 4.18.100 has been promoted to the stable channel!
+The artifacts can be downloaded from:
+  • stable channel of https://packages.chef.io
+  • stable channel of https://omnitruck.chef.io
+  • https://downloads.chef.io/inspec/stable/4.18.100
+3:50
+inspec/inspec:master performed the following actions for inspec 4.18.100 (stable) (logs)
+• Executed .expeditor/update_dockerfile.sh
+• Updated CHANGELOG.md to reflect the promotion of 4.18.100
+• Published inspec-4.18.100, inspec-core-4.18.100, inspec-bin-4.18.100, and inspec-core-bin-4.18.100 to RubyGems.org
+• Created GitHub release Chef InSpec v4.18.100
+• Tagged chef/inspec:4.18.100 with 4, 4.18, and latest
+• Promoted chef/inspec/4.18.100/20200303200836 for x86_64-windows to the stable channel on the Habitat Depot
+• Promoted chef/inspec/4.18.100/20200303200418 for x86_64-linux to the stable channel on the Habitat Depot
+• Promoted chef/inspec/4.18.100/20200303200623 for x86_64-linux-kernel2 to the stable channel on the Habitat Depot
+• Executed .expeditor/publish-release-notes.sh
+• Executed .expeditor/purge-cdn.sh
+• Executed .expeditor/announce-release.sh
+• Notified Slack channels of the artifact_published event
+```
+
+Among other things, this automatically generates [release notes](https://github.com/inspec/inspec/blob/master/.expeditor/publish-release-notes.sh) and [publishes them](https://github.com/inspec/inspec/blob/master/.expeditor/announce-release.sh) to Discourse.
+
