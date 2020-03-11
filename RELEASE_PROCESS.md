@@ -1,8 +1,10 @@
 # Releasing InSpec
 
+This document describes the release process for InSpec as used internally at Chef Software.
+
 ## Promote Dependency Gems
 
-It's important that dependency gems be promoted (released to rubygems.org) BEFORE the last PR you intend to release is merged into inspec/inspec. This is because during the inspec merge process, software artifacts are created that embed the dependencies (such as omnibus packages, Habitat packages, and Docker images). During promotion, those artifacts are simply promoted, not rebuilt. If you need a later version of one of these dependencies and have no legitimate PR to merge, a dummy PR may be needed.
+It's important that dependency gems be promoted (released to rubygems.org) BEFORE the last PR you intend to release is merged into inspec/inspec. This is because during the inspec merge process, software artifacts (such as omnibus packages, Habitat packages, and Docker images) are created that embed the dependencies. During promotion, these artifacts are simply promoted, not rebuilt. If you need a later version of one of these dependencies and have no legitimate PR to merge, a dummy PR may be needed.
 
 ### Key Dependencies
 
@@ -27,6 +29,11 @@ These are the transports (connectivity drivers) that have been fully plugin-ized
 
 train-aws in particular is critical because it carries the gem dependencies for all AWS libraries required by inspec-aws; when those change, train-aws must be updated, and so must train and inspec.
 
+You can promote each of these gems by running, in #inspec-notify,
+```
+/expeditor promote inspec/GEMNAME:master VERSION
+```
+
 ## Merging InSpec PRs
 
 At the time of writing, a merge typically takes about 30-40 minutes of test time.
@@ -37,7 +44,9 @@ Connect to the Chef VPN to fetch Expeditor logs in the event of a failure.
 
 ### Check Expeditor Labels
 
-Most PRs shouldn't have any Expeditor control labels. The patchlevel (4.18.X) will be automatically incremented by the [expeditor configuration](https://github.com/inspec/inspec/blob/44fe144732e1e0abb2594957a880c5f1821e7774/.expeditor/config.yml#L117) and the [version bump script](https://github.com/inspec/inspec/blob/master/.expeditor/update_version.sh).
+Most, though not all, PRs shouldn't have any Expeditor control labels. The patchlevel (4.18.X) will be automatically incremented by the [expeditor configuration](https://github.com/inspec/inspec/blob/44fe144732e1e0abb2594957a880c5f1821e7774/.expeditor/config.yml#L117) and the [version bump script](https://github.com/inspec/inspec/blob/master/.expeditor/update_version.sh).
+
+Here are the Expeditor control labels, and the circumstances under which they should be used:
 
  * Expeditor: Bump Minor Version - Use when a significant new feature is being released.
  * Expeditor: Skip Changelog - Should only be used for dummy PRs.
@@ -48,8 +57,6 @@ Most PRs shouldn't have any Expeditor control labels. The patchlevel (4.18.X) wi
 ### Click Merge
 
 This should be straightforward, assuming the big merge button is green.
-
-If the merge button is red, take a moment and reminisce about various regrets in your life, then make your choice. Merging a build that fails tests is counterproductive; we have further tests downstream during the post-merge process.
 
 You'll see a message in #inspec-notify from Expeditor that it "performed actions for merged_inspec/inspec#1234" (for PR 1234, for example). Among the messages will be links to the Omnibus and Habitat builds.
 
@@ -71,9 +78,9 @@ When the hab build succeeds, the packages will be placed on the Hab builder in t
 
 ### Docker Image Built and Released
 
-We also release a Docker image, which contains an Alpine system and InSpec installed from a gem, with the EXEC of the Docker image being `inspec`. It's a simple way to ship the dependencies of inspec.
+We also release a Docker image (see[expeditor config](https://github.com/inspec/inspec/blob/44fe144732e1e0abb2594957a880c5f1821e7774/.expeditor/config.yml#L150)), which contains an Alpine system and InSpec installed from a gem, with the ENTRYPOINT of the Docker image being `inspec` (see [Dockerfile](https://github.com/inspec/inspec/blob/master/Dockerfile)). It's a simple way to ship the dependencies of inspec.
 
-When the Docker build succeeds, it is released directly to the `stable` channel.
+When the Docker build succeeds, it is labeled `current`.  Currently, there is nothing that promotes the Docker image to the `stable` label ([#4952](https://github.com/inspec/inspec/issues/4952)).
 
 ### Gems Built and Placed on Artifactory
 
